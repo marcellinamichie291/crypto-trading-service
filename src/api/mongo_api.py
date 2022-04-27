@@ -1,4 +1,5 @@
 import typing
+
 from pymongo import MongoClient
 
 
@@ -30,3 +31,5 @@ class MongoInterface:
         _ = [x for x in _]
         return {k: [d[k] for d in _ if k in d] for k in self.all_keys}
 
+    def post_one(self, item) -> None:
+        self.coll_to.insert_one(item)
