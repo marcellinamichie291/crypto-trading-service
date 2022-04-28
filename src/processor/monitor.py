@@ -3,7 +3,9 @@ from src.utils.logger import log
 from src.api.mongo_api import MongoInterface
 from src.api.okex_api import Market
 from src.processor.trade_class import Trade
+from src.model.model import Model
 from src.utils.dts import *
+from src.processor.ti_producer import TiGenerator
 
 
 class Monitor:
@@ -14,10 +16,13 @@ class Monitor:
                  db_uri: str,
                  db_port: int,
                  where_from: tuple,
-                 where_to: tuple):
+                 where_to: tuple,
+                 pairs: list):
 
         self.exchange = Market(api_key, secret, password)
         self.mongo = MongoInterface(db_uri, db_port, where_from, where_to)
+        self.model = Model(monitoring_list=pairs)
+        self.tiger = TiGenerator()
 
         self.positions = {'long': set(), 'short': set()}
         self.cache = []
@@ -141,12 +146,12 @@ class Monitor:
 
     def run(self):
 
-        while (True):
+        while True:
             try:
                 self.process_cache()
-
-                pass
-
+                actions = self.model.monitor(self.tiger, self.mongo)
+                for k in actions:
+                    self.action_resolution(actions[k], k)
                 time.sleep(10)
             except Exception as e:
                 log.exception(e)
