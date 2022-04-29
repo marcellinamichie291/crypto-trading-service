@@ -23,10 +23,10 @@ class Model:
         return prediction.item()
 
     def monitor(self, TiG:TiGenerator, mongo_interface:M.MongoInterface):
-        updated_list = {}
+        updated_list = dict()
         later_time = to_unix(datetime.datetime.now())
         for pair in self.monitoring_list:
             ti = TiG.goto_db_and_make_obs(inst_id=pair, later_time=later_time, mongo_int=mongo_interface)
             action = self.predict(ti.to_numpy())
-            updated_list['pair'] = action
+            updated_list[pair] = action
         return updated_list
