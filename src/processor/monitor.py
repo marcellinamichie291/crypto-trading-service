@@ -63,12 +63,11 @@ class Monitor:
             return
 
         # New
-        if action == 0 and pair not in self.positions['short']:
+        if action == 0 and (pair not in self.positions['short'] and part not in self.positions['long']):
             log.info(f'Short signal for {pair} - skipping (no short)')
             return
-        elif action == 1:
-            return
-        elif action == 2 and pair not in self.positions['long']:
+
+        elif action == 2 and (pair not in self.positions['long'] and pair not in self.postions['short']):
             r = self.m.create_order(symbol=pair,
                                     type='market',
                                     side='buy',
@@ -88,7 +87,7 @@ class Monitor:
             trades = self.get_from_cache(pair)
             self.batch_close(trades)
             for trade in trades:
-                log.info(f'Short signal for {pair} - closing reversed (amnt$: {t.close_amount_quote})')
+                log.info(f'Short signal for {pair} - closing reversed (amnt$: {trade.close_amount_quote})')
             return
 
         elif action == 2 and pair in self.positions['short']:
@@ -110,7 +109,7 @@ class Monitor:
                         return
 
                 # Increase position
-                diff = self.max_load < amount
+                diff = self.max_load - amount
                 assert diff > 0
                 r = self.m.create_order(symbol=pair,
                                         type='market',
