@@ -181,10 +181,16 @@ class TiGenerator:
 
     def goto_db_and_make_obs(self, inst_id: str, later_time: int, mongo_int: M.MongoInterface):
         raw = pl.DataFrame(mongo_int.get_latest_batch(inst_id, later_time))
+        
         if len(raw) == 0:
-            raise ZeroObsException('Not enough observations for an observation')
+            raise ZeroObsException('Empty DB for a given ticker')
+        
+        if len(raw) < 300:
+            raise NotEnoughData(f"Expected 300 obs, got {len(raw)}")
+            
         raw = raw[['dt', 'o','h', 'l', 'c', 'vol_count', 'vol_coin']].sort(by=[pl.col('dt'), pl.col('vol_count')])
         raw = raw.with_column(pl.col('dt').shift(-1).alias('next_dt'))
         raw = raw.with_column(pl.when(pl.col('dt') != pl.col('next_dt')).then(1).otherwise(None).alias('candle_end'))
         raw = raw.drop_nulls()[['dt', 'o','h', 'l', 'c', 'vol_count', 'vol_coin']]
+        
         return self.get_obs(raw, 150)
