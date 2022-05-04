@@ -1,5 +1,6 @@
 FROM continuumio/miniconda3 AS builder
 COPY requirements.txt .
+RUN conda config --append channels conda-forge
 RUN conda create --name build --file requirements.txt
 
 FROM python:3.8-slim
