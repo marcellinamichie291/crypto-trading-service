@@ -5,7 +5,7 @@ RUN conda env create --file environment.yml
 RUN conda install -c conda-forge conda-pack
 
 # Use conda-pack to create a standalone enviornmen in /venv:
-RUN conda-pack -n example -o /tmp/env.tar && \
+RUN conda-pack -n build -o /tmp/env.tar && \
   mkdir /venv && cd /venv && tar xf /tmp/env.tar && \
   rm /tmp/env.tar
 
