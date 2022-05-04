@@ -1,31 +1,40 @@
 version: "3.8"
 services:
   ws-to-mongo:
-    image: reosiain/crypto:ws_to_mongo
-    command:
-      "./build/bin/ws_to_mongo"
+    image: reosiain/billy:ws_to_mongo
     container_name: ws_to_mongo
     environment:
       - WS_ADDRESS=${WS_ADDRESS}
-      - MONGO_URI=${MONGO_URI}
+      - MONGO_URI=${DB_URI_WO_PORT}:${DB_PORT}
       - SUBSCRIPTION_PARAMS=${SUBSCRIPTION_PARAMS}
+      - DB_NAME=${DB_NAME}
+      - OHLC_COLLECTION_NAME=${OHLC_COLLECTION_NAME}
     ports:
       - "1000:1000"
     restart: unless-stopped
     networks:
       net_internal:
         ipv4_address: ${WS_TO_MONGO_HOST}
+    depends_on:
+      - mongodb
 
-  trading_service:
-    image: reosiain/crypto:trading_service
-    command: "src/launcher.py"
-    container_name: trading_service
-    environment:
-      - OKEX_REST_API=${OKEX_REST_API}
-      - MONGO_URI=${MONGO_URI}
-      - SUBSCRIPTION_PARAMS=${SUBSCRIPTION_PARAMS}
+  trading-service:
+    image: reosiain/billy:crypto_trading_service
+    container_name: trading-service
+    environment:        
+      - API_KEY=${API_KEY}
+      - API_SECRET=${API_SECRET}
+      - API_PASS=${API_PASS}
+      - DB_URI=${DB_URI_WO_PORT}
+      - DB_PORT=${DB_PORT}
+      - DB_NAME=${DB_NAME}
+      - OHLC_COLLECTION_NAME=${OHLC_COLLECTION_NAME}
+      - TRADE_COLLECTION_NAME=${TRADE_COLLECTION_NAME}
+      - PAIRS=${PAIRS}
+      - MODEL_PATH=${MODEL_PATH}
+      - LOGGER_PATH=${LOGGER_PATH}
     ports:
-      - "1001:1001"
+      - "1000:1000"
     restart: unless-stopped
     networks:
       net_internal:
@@ -36,19 +45,19 @@ services:
   mongodb:
     image: mongo
     container_name: mongodb
-    command: mongod --quiet --port 1002 --bind_ip ${MONGO_HOST}
+    command: mongod --quiet --port 1000 --bind_ip ${DB_URI_WO_PORT}
     environment:
       - PUID=1000
       - PGID=1000
     volumes:
-      - ./mongo/database:/data/db
-      - ./source:/data/log
+      - ./internals/db/data:/data/db
+      - ./internals/db/log:/data/log
     ports:
-      - "1002:1002"
+      - "1000:1000"
     restart: unless-stopped
     networks:
       net_internal:
-        ipv4_address: ${MONGO_HOST}
+        ipv4_address: ${DB_URI_WO_PORT}
 
 networks:
   net_internal:

@@ -1,0 +1,37 @@
+{
+  "op": "subscribe",
+  "args": [
+    {
+      "channel": "candle1m",
+      "instId": "DOT-USDT"
+    },
+    {
+      "channel": "candle1m",
+      "instId": "AVAX-USDT"
+    },
+    {
+      "channel": "candle1m",
+      "instId": "ADA-USDT"
+    },
+    {
+      "channel": "candle1m",
+      "instId": "DOGE-USDT"
+    },
+    {
+      "channel": "candle1m",
+      "instId": "SOL-USDT"
+    },
+    {
+      "channel": "candle1m",
+      "instId": "LUNA-USDT"
+    },
+    {
+      "channel": "candle1m",
+      "instId": "XRP-USDT"
+    },
+    {
+      "channel": "candle1m",
+      "instId": "ETH-USDT"
+    }
+  ]
+}
