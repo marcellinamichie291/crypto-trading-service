@@ -1,0 +1,6 @@
+name: build 
+dependencies:
+    - pytorch
+    - pymongo
+    - pip:
+        - polars
