@@ -1,6 +1,6 @@
 FROM python:3.8 AS builder
 COPY requirements.txt .
-RUN pip install --user -r requirements.txt
+RUN conda install --file requirements.txt
 
 FROM python:3.8-slim
 RUN ls -lh .
