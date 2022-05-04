@@ -13,8 +13,6 @@ RUN /venv/bin/conda-unpack
 
 
 FROM debian:buster AS runtime
-
-RUN conda env create --file environment.yml
 COPY /src /code
 COPY --from=build /venv /venv
 
