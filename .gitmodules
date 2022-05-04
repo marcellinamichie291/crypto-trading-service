@@ -1,3 +1,0 @@
-[submodule "ws-to-mongo"]
-	path = ws-to-mongo
-	url = https://github.com/reosiain/ws-to-mongo.git
