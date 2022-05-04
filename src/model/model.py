@@ -1,3 +1,4 @@
+import os
 import torch
 import numpy as np
 from src.utils.dts import *
@@ -13,7 +14,8 @@ class Model:
     """
     def __init__(self, monitoring_list: list):
 
-        self.model = DQN2d(150, 3)
+#         self.model = DQN2d(150, 3)
+        self.model = torch.load(os.getenv("MODEL_PATH"))
         self.monitoring_list = monitoring_list
 
     def predict(self, array: np.ndarray) -> int:
