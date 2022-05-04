@@ -1,6 +1,7 @@
 FROM continuumio/miniconda3 AS build
 
 COPY environment.yml .
+<<<<<<< HEAD
 RUN conda create --file environment.yml
 RUN conda install -c conda-forge conda-pack
 
@@ -13,6 +14,9 @@ RUN /venv/bin/conda-unpack
 
 
 FROM debian:buster AS runtime
+=======
+RUN conda env create --file environment.yml
+>>>>>>> d8ddcffc33bf85a47392e3a5d7a1f0876b050578
 
 COPY /src /code
 COPY --from=build /venv /venv
