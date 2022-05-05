@@ -1,11 +1,11 @@
 import time
-from src.utils.logger import log
-from src.api.mongo_api import MongoInterface
-from src.api.okex_api import Market
-from src.processor.trade_class import Trade
-from src.model.model import Model
-from src.utils.dts import *
-from src.processor.ti_producer import TiGenerator
+from utils.logger import log
+from api.mongo_api import MongoInterface
+from api.okex_api import Market
+from processor.trade_class import Trade
+from model.model import Model
+from utils.dts import *
+from processor.ti_producer import TiGenerator
 
 
 class Monitor:

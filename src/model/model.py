@@ -1,11 +1,11 @@
 import os
 import torch
 import numpy as np
-from src.utils.dts import *
+from utils.dts import *
 import datetime
-from src.model.model_core import DQN2d
-from src.processor.ti_producer import TiGenerator
-from src.api.mongo_api import MongoInterface as M
+from model.model_core import DQN2d
+from processor.ti_producer import TiGenerator
+from api.mongo_api import MongoInterface as M
 
 
 class Model:
