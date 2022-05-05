@@ -7,8 +7,6 @@ sys.path.append(f'{sys.path[0]}/model')
 sys.path.append(f'{sys.path[0]}/processor')
 sys.path.append(f'{sys.path[0]}/utils')
 
-print(sys.path)
-
 from processor.monitor import Monitor
 
 if __name__ == "__main__":
