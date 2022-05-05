@@ -3,7 +3,7 @@ from utils.logger import log
 from api.mongo_api import MongoInterface
 from api.okex_api import Market
 from processor.trade_class import Trade
-from model.model import Model
+from model.model_instance import Model
 from utils.dts import *
 from processor.ti_producer import TiGenerator
 
