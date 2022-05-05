@@ -2,5 +2,6 @@ name: build
 dependencies:
     - pytorch
     - pymongo
+    - loguru
     - pip:
         - polars
