@@ -5,8 +5,8 @@ import polars as pl
 
 from scipy.signal.signaltools import wiener
 
-from src.api import mongo_api as M
-from src.exceptions import *
+from api import mongo_api as M
+from exceptions import *
 
 
 def standardize(ser):

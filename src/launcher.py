@@ -2,13 +2,14 @@ import os
 import sys
 from pathlib import Path
 
-ROOT = os.path.dirname(__file__)
-sys.path.append(f'{ROOT}/api')
-sys.path.append(f'{ROOT}/model')
-sys.path.append(f'{ROOT}/processor')
-sys.path.append(f'{ROOT}/utils')
+sys.path.append(f'{sys.path[0]}/api')
+sys.path.append(f'{sys.path[0]}/model')
+sys.path.append(f'{sys.path[0]}/processor')
+sys.path.append(f'{sys.path[0]}/utils')
 
-from src.processor.monitor import Monitor
+print(sys.path)
+
+from processor.monitor import Monitor
 
 if __name__ == "__main__":
 
