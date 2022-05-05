@@ -12,7 +12,7 @@ services:
     volumes:
       - ./internals:/internals
     ports:
-      - "1000:1000"
+      - "1002:1002"
     restart: unless-stopped
     networks:
       net_internal:
@@ -39,7 +39,7 @@ services:
       - ./model:/model
       - ./internals:/internals
     ports:
-      - "1000:1000"
+      - "1001:1001"
     restart: unless-stopped
     networks:
       net_internal:
