@@ -5,3 +5,4 @@ dependencies:
     - loguru
     - pip:
         - polars
+        - ccxt
