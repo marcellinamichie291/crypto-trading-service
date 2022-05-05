@@ -24,7 +24,7 @@ class Model:
             prediction = self.model(tensor)
         return prediction.item()
 
-    def monitor(self, TiG:TiGenerator, mongo_interface:M.MongoInterface):
+    def monitor(self, TiG:TiGenerator, mongo_interface:M):
         updated_list = dict()
         later_time = to_unix(datetime.datetime.now())
         for pair in self.monitoring_list:
