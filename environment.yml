@@ -3,6 +3,9 @@ dependencies:
     - pytorch
     - pymongo
     - loguru
+    - pandas
+    - numpy
+    - requests
     - pip:
         - polars
         - ccxt
