@@ -9,6 +9,8 @@ services:
       - SUBSCRIPTION_PARAMS=${SUBSCRIPTION_PARAMS}
       - DB_NAME=${DB_NAME}
       - OHLC_COLLECTION_NAME=${OHLC_COLLECTION_NAME}
+    volumes:
+      - ./internals:/internals
     ports:
       - "1000:1000"
     restart: unless-stopped
@@ -33,6 +35,8 @@ services:
       - PAIRS=${PAIRS}
       - MODEL_PATH=${MODEL_PATH}
       - LOGGER_PATH=${LOGGER_PATH}
+    volumes:
+      - ./internals:/internals
     ports:
       - "1000:1000"
     restart: unless-stopped
