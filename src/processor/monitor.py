@@ -1,4 +1,5 @@
 import time
+from exceptions import *
 from utils.logger import log
 from api.mongo_api import MongoInterface
 from api.okex_api import Market
