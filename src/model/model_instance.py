@@ -15,7 +15,8 @@ class Model:
     def __init__(self, monitoring_list: list):
 
         self.model = DQN2d(150, 3)
-        self.model.load_state_dict(os.getenv("MODEL_PATH"))
+        self.model.load_state_dict(torch.load(os.getenv("MODEL_PATH")))
+        self.model.eval()
         self.monitoring_list = monitoring_list
 
     def predict(self, array: np.ndarray) -> int:
