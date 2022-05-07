@@ -2,10 +2,8 @@ name: ci
 
 on:
   push:
-    branches: [ master ]
-  pull_request:
-    branches: [ master ]
-    
+    paths:
+      - 'src/**'
 jobs:
   docker:
     runs-on: ubuntu-latest
