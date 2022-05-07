@@ -5,7 +5,7 @@ services:
     container_name: ws_to_mongo
     environment:
       - WS_ADDRESS=${WS_ADDRESS}
-      - MONGO_URI=${DB_URI_WO_PORT}:${DB_PORT}
+      - MONGO_URI=mongodb://${DB_URI_WO_PORT}:${DB_PORT}
       - SUBSCRIPTION_PARAMS=${SUBSCRIPTION_PARAMS}
       - DB_NAME=${DB_NAME}
       - OHLC_COLLECTION_NAME=${OHLC_COLLECTION_NAME}
