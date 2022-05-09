@@ -1,22 +1,8 @@
-FROM continuumio/miniconda3 AS build
+FROM reosiain/billy:python_base AS build
 
-COPY environment.yml .
-RUN conda env create --file environment.yml
-RUN conda install -c conda-forge conda-pack
-
-# Use conda-pack to create a standalone enviornmen in /venv:
-RUN conda-pack -n build -o /tmp/env.tar && \
-  mkdir /venv && cd /venv && tar xf /tmp/env.tar && \
-  rm /tmp/env.tar
-
-RUN /venv/bin/conda-unpack
-
-
-FROM debian:buster AS runtime
+FROM python:3.8-slim AS runtime
 COPY /src /code
 COPY --from=build /venv /venv
 
-# When image is run, run the code with the environment
-# activated:
 SHELL ["/bin/bash", "-c"]
 ENTRYPOINT source /venv/bin/activate && python code/launcher.py

@@ -153,7 +153,7 @@ class Monitor:
                 for k in actions:
                     self.action_resolution(actions[k], k)
                 time.sleep(10)
-                
+
             except (NotEnoughData, ZeroObsException):
                 log.warning("Not enough data collected. Hibernating for 10 minutes.")
                 time.sleep(600)
