@@ -33,3 +33,6 @@ class MongoInterface:
 
     def post_one(self, item) -> None:
         self.coll_to.insert_one(item)
+
+    def post_missing_candles(self, items) -> None:
+        self.coll_from.insert_many(items)

@@ -1,5 +1,10 @@
+import os
 import time
+import math
+import requests
+import datetime
 import ccxt
+from utils import dts
 from ccxt.base.errors import BadSymbol
 
 
@@ -43,3 +48,51 @@ class Market:
                 except BadSymbol:
                     pass
                     time.sleep(2)
+
+    @staticmethod
+    def get_candles(pair: str, older_time: datetime.datetime):
+        insertable_documents = []
+        step_msec = 60000
+        per_page = 100
+        URL_BASE = "https://www.okex.com"
+        HEADERS = {
+            "OK-ACCESS-KEY": os.getenv('API_KEY'),
+            "OK-ACCESS-SIGN": os.getenv('API_SECRET'),
+        }
+
+        now = dts.to_unix(datetime.datetime.now())
+        body = {
+            "instId": pair,
+            "after": str(now),
+        }
+        keys = {
+               0: "dt",
+               1: "o",
+               2: "h",
+               3: "l",
+               4: "c",
+               5: "vol_count",
+               6: "vol_coin"}
+
+        loops = math.ceil(((now - dts.to_unix(older_time)) / step_msec) / per_page)
+        for step in range(loops):
+            a = requests.get(
+                URL_BASE + "/api/v5/market/history-candles", headers=HEADERS, params=body
+            )
+
+            if len(a.json()["data"]) == 0:
+                now -= step * step_msec * per_page
+            else:
+                now = a.json()["data"][-1][0]  # Time of the last candle in this batch
+
+            for cndl in a.json()["data"]:
+                d_ = {keys[k]: float(cndl[k]) for k in keys}
+                d_['instId'] = pair
+                insertable_documents.append(d_)
+
+            body = {
+                "instId": pair,
+                "after": str(now),
+            }
+            time.sleep(0.05)
+        return insertable_documents

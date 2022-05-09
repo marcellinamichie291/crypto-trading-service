@@ -1,3 +1,4 @@
+import datetime
 import time
 from exceptions import *
 from utils.logger import log
@@ -24,6 +25,8 @@ class Monitor:
         self.mongo = MongoInterface(db_uri, db_port, where_from, where_to)
         self.model = Model(monitoring_list=pairs)
         self.tiger = TiGenerator()
+
+        self.check_data_sufficiency(pairs)
 
         self.positions = {'long': set(), 'short': set()}
         self.cache = []
@@ -56,6 +59,13 @@ class Monitor:
             to_delete.append(trade)
         for t in to_delete:
             self.cache.remove(t)
+
+    def check_data_sufficiency(self, pairs):
+        """On init checks if data is sufficient to start predicting"""
+        for pair in pairs:
+            li = self.exchange.get_candles(pair, older_time=datetime.datetime.now()-datetime.timedelta(hours=6))
+            self.mongo.post_missing_candles(li)
+            log.info(f"Inserted {len(li)} missing candles for {pair}")
 
     def action_resolution(self, action: int, pair: str):
         """Function resolves trades in context of actions predicted by the model"""
