@@ -158,6 +158,11 @@ class TiGenerator:
                 # "tr_adx" : smooth(standartize(adx)))
             }
         )
+        try:
+            assert len(new_q) - tensor_length >= 0
+        except AssertionError:
+            raise NotEnoughData(f"Expected 300 obs, got {len(new_q)}")
+
         return new_q[len(new_q) - tensor_length:]
 
     def get_normalized_series(self, q: pl.DataFrame, tensor_length):
@@ -184,13 +189,13 @@ class TiGenerator:
         
         if len(raw) == 0:
             raise ZeroObsException('Empty DB for a given ticker')
-        
-        if len(raw) < 300:
-            raise NotEnoughData(f"Expected 300 obs, got {len(raw)}")
-            
+
         raw = raw[['dt', 'o','h', 'l', 'c', 'vol_count', 'vol_coin']].sort(by=[pl.col('dt'), pl.col('vol_count')])
         raw = raw.with_column(pl.col('dt').shift(-1).alias('next_dt'))
         raw = raw.with_column(pl.when(pl.col('dt') != pl.col('next_dt')).then(1).otherwise(None).alias('candle_end'))
         raw = raw.drop_nulls()[['dt', 'o','h', 'l', 'c', 'vol_count', 'vol_coin']]
-        
+
+        if len(raw) < 300:
+            raise NotEnoughData(f"Expected 300 obs, got {len(raw)}")
+
         return self.get_obs(raw, 150)
