@@ -22,7 +22,7 @@ class Model:
     def predict(self, array: np.ndarray) -> int:
         tensor = torch.Tensor(array)
         with torch.no_grad():
-            prediction = self.model(tensor)
+            prediction = self.model(tensor.view(1,150,14))
         return prediction.item()
 
     def monitor(self, TiG:TiGenerator, mongo_interface:M):
