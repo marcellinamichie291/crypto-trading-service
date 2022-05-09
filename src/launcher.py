@@ -1,6 +1,5 @@
 import os
 import sys
-from pathlib import Path
 
 sys.path.append(f'{sys.path[0]}/api')
 sys.path.append(f'{sys.path[0]}/model')
