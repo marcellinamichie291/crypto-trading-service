@@ -5,30 +5,31 @@ services:
     container_name: ws_to_mongo
     environment:
       - WS_ADDRESS=${WS_ADDRESS}
-      - MONGO_URI=mongodb://${DB_URI_WO_PORT}:${DB_PORT}
+      - MONGO_URI=mongodb://${DB_URI_WO_PORT}:1000
       - SUBSCRIPTION_PARAMS=${SUBSCRIPTION_PARAMS}
       - DB_NAME=${DB_NAME}
       - OHLC_COLLECTION_NAME=${OHLC_COLLECTION_NAME}
+      - VERBOSE_MSG=False
     volumes:
       - ./internals:/internals
-    ports:
-      - "1002:1002"
     restart: unless-stopped
     networks:
       net_internal:
         ipv4_address: ${WS_TO_MONGO_HOST}
     depends_on:
-      - mongodb
+      mongodb:
+        condition: service_healthy
+
 
   trading-service:
     image: reosiain/billy:crypto_trading_service
     container_name: trading-service
-    environment:        
+    environment:
       - API_KEY=${API_KEY}
       - API_SECRET=${API_SECRET}
       - API_PASS=${API_PASS}
       - DB_URI=${DB_URI_WO_PORT}
-      - DB_PORT=${DB_PORT}
+      - DB_PORT=1000
       - DB_NAME=${DB_NAME}
       - OHLC_COLLECTION_NAME=${OHLC_COLLECTION_NAME}
       - TRADE_COLLECTION_NAME=${TRADE_COLLECTION_NAME}
@@ -42,39 +43,40 @@ services:
       - "1001:1001"
     restart: unless-stopped
     networks:
-      net_internal:
-        ipv4_address: ${TRADING_SERVICE_HOST}
+      - net_internal
     depends_on:
-      - mongodb
+      mongodb:
+        condition: service_healthy
 
   mongodb:
     image: mongo
     container_name: mongodb
-    command: mongod --quiet --port 1000 --bind_ip ${DB_URI_WO_PORT}
+    command: mongod --quiet --port 1000 --logpath /data/log/mongolog --bind_ip ${DB_URI_WO_PORT}
     environment:
+      - TZ=Europe/Moscow
       - PUID=1000
       - PGID=1000
     volumes:
       - ./internals/db/data:/data/db
-      - ./internals/db/log:/data/log
+      - ./internals/db/mongolog:/data/log
     ports:
       - "1000:1000"
     restart: unless-stopped
+    healthcheck:
+      test: echo 'db.stats().ok' || exit 1
+      interval: 10s
+      timeout: 5s
+      retries: 0
+      start_period: 10s
     networks:
       net_internal:
         ipv4_address: ${DB_URI_WO_PORT}
 
 networks:
   net_internal:
-    external: false
     ipam:
       config:
         - subnet: 192.168.55.0/24
           gateway: 192.168.55.1
-
-  net_external:
-    external: true
-    name: net_external
-
 
 
