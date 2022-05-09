@@ -2,7 +2,7 @@ name: build
 dependencies:
     - pytorch
     - pymongo
-    - pyarrows
+    - pyarrow
     - loguru
     - pandas
     - numpy
