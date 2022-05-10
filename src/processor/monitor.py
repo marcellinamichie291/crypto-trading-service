@@ -74,7 +74,7 @@ class Monitor:
             return
 
         # New
-        if action == 0 and (pair not in self.positions['short'] and part not in self.positions['long']):
+        if action == 0 and (pair not in self.positions['short'] and pair not in self.positions['long']):
             log.info(f'Short signal for {pair} - skipping (no short)')
             return
 
