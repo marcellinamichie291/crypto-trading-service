@@ -140,7 +140,8 @@ class Monitor:
                                        side=sd,
                                        amount=T.open_amount_base,
                                        params={"tgtCcy": "base_ccy"})
-        return T.modify_on_close(r)
+        trd = T.modify_on_close(r)
+        return trd.close()
 
     def process_cache(self):
         to_delete = []

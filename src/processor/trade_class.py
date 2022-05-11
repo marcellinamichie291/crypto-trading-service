@@ -50,16 +50,16 @@ class Trade:
       return asdict(self)
 
     def close(self, close_ts, close_price) -> dict:
-      self.close_ts = close_ts
-      self.close_price = close_price
+        self.close_ts = close_ts
+        self.close_price = close_price
 
-      self._absolute_return()
-      self._relative_return()
-      self._time_alive()
+        self._absolute_return()
+        self._relative_return()
+        self._time_alive()
 
-      self.is_open = False
+        self.is_open = False
 
-      return self.dict()
+        return self.dict()
 
     @classmethod
     def create_from_response(cls, r:dict):
