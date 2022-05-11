@@ -79,7 +79,7 @@ class Monitor:
             return
 
         elif action == 2 and (pair not in self.positions['long'] and pair not in self.positions['short']):
-            r = self.m.create_order(symbol=pair,
+            r = self.exchange.create_order(symbol=pair,
                                     type='market',
                                     side='buy',
                                     amount=1000,
@@ -122,7 +122,7 @@ class Monitor:
                 # Increase position
                 diff = self.max_load - amount
                 assert diff > 0
-                r = self.m.create_order(symbol=pair,
+                r = self.exchange.create_order(symbol=pair,
                                         type='market',
                                         side='buy',
                                         amount=diff,
