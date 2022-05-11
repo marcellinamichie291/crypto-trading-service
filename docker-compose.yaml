@@ -4,6 +4,7 @@ services:
     image: reosiain/billy:ws_to_mongo
     container_name: ws_to_mongo
     environment:
+      - TZ=Europe/Moscow
       - WS_ADDRESS=${WS_ADDRESS}
       - MONGO_URI=mongodb://${DB_URI_WO_PORT}:1000
       - SUBSCRIPTION_PARAMS=${SUBSCRIPTION_PARAMS}
@@ -20,11 +21,21 @@ services:
       mongodb:
         condition: service_healthy
 
+  python-dependencies:
+    image: reosiain/billy:python_base
+    container_name: python-dependencies
+    command: sleep infinity
+    volumes:
+      - dependencies-path:/venv
+    depends_on:
+      mongodb:
+        condition: service_healthy
 
   trading-service:
     image: reosiain/billy:crypto_trading_service
     container_name: trading-service
     environment:
+      - TZ=Europe/Moscow
       - API_KEY=${API_KEY}
       - API_SECRET=${API_SECRET}
       - API_PASS=${API_PASS}
@@ -37,6 +48,7 @@ services:
       - MODEL_PATH=${MODEL_PATH}
       - LOGGER_PATH=${LOGGER_PATH}
     volumes:
+      - dependencies-path:/venv
       - ./model:/model
       - ./internals:/internals
     ports:
@@ -45,8 +57,7 @@ services:
     networks:
       - net_internal
     depends_on:
-      mongodb:
-        condition: service_healthy
+      - python-dependencies
 
   mongodb:
     image: mongo
@@ -79,4 +90,6 @@ networks:
         - subnet: 192.168.55.0/24
           gateway: 192.168.55.1
 
+volumes:
+  dependencies-path:
 
