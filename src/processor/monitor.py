@@ -99,7 +99,7 @@ class Monitor:
         r = self.exchange.create_order(symbol=T.instId,
                                        type='market',
                                        side=sd,
-                                       amount=T.open_amount_base * (1 - 0.12e-2),  # Commission is paid in base, so it is not feasible to close full open amount
+                                       amount=T.open_amount_base,  # Commission is paid in base, so it is not feasible to close full open amount
                                        params={"tgtCcy": "base_ccy"})
 
         return T.modify_on_close(r).close()
