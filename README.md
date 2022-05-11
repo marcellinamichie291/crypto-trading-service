@@ -2,10 +2,10 @@
 
 
 1) Docker pipeline
-   1) Use Dockerfile_for_base_image to create basic python image with all required dependencies
-   2) On top of the image built in step 1 create image with executable code with Dockerfile
-   3) Finally, run docker-compose.yml to create pod 
-<br />
+   1) Use Dockerfile_for_base_image to create basic python image with all required dependencies but no code.
+   2) Use Dokerfile to create python image with code only.
+   3) Finally, run docker-compose.yml to create pod, which runs cont. with image 1 and cont. with image 2 simultaneously.
+
 2) Required env variables
 
       * LOGGER_PATH - path to log file
