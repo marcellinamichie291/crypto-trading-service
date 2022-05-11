@@ -23,7 +23,7 @@ class Model:
         tensor = torch.Tensor(array)
         with torch.no_grad():
             prediction = self.model(tensor.view(1,150,14))
-        return (prediction.max(dim=1).indices -1).numpy()[0]
+        return prediction.max(dim=1).indices.numpy()[0]
 
     def monitor(self, TiG:TiGenerator, mongo_interface:M):
         updated_list = dict()
