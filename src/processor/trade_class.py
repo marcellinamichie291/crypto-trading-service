@@ -28,13 +28,13 @@ class Trade:
     fees_in_base: list = field(default_factory=list)
 
     def _absolute_return(self) -> None:
-      if self.close_price is not None:
+      if self.close_price_base is not None:
         self.absolute_return = ((self.close_amount_base
                                  -sum(self.fees_in_base))
                                  /self.open_amount_base)-1
 
     def _relative_return(self) -> None:
-      if self.close_price is not None:
+      if self.close_price_base is not None:
         coef = 1 if self.side == 'buy' else -1
         self.relative_return = (((self.close_amount_base
                                  -sum(self.fees_in_base))
@@ -49,9 +49,12 @@ class Trade:
     def dict(self):
       return asdict(self)
 
-    def close(self, close_ts, close_price) -> dict:
-        self.close_ts = close_ts
-        self.close_price = close_price
+    def close(self, close_ts=None, close_price=None) -> dict:
+
+        if close_ts is not None:
+            self.close_ts = close_ts
+        if close_price is not None:
+            self.close_price_base = close_price
 
         self._absolute_return()
         self._relative_return()
@@ -62,7 +65,7 @@ class Trade:
         return self.dict()
 
     @classmethod
-    def create_from_response(cls, r:dict):
+    def create_from_response(cls, r: dict):
         trd = cls(
           instId = r['info']['instId'],
           side = r['info']['side'],

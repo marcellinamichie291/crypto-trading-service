@@ -10,6 +10,7 @@ from utils.dts import *
 from processor.ti_producer import TiGenerator
 
 
+
 class Monitor:
 
     def __init__(self, api_key: str,
@@ -72,76 +73,36 @@ class Monitor:
 
         if action == 1:
             return
-
         # New
         if action == 0 and (pair not in self.positions['short'] and pair not in self.positions['long']):
-            log.info(f'Short signal for {pair} - skipping (no short)')
+            self.new_short(pair)
             return
-
         elif action == 2 and (pair not in self.positions['long'] and pair not in self.positions['short']):
-            r = self.exchange.create_order(symbol=pair,
-                                    type='market',
-                                    side='buy',
-                                    amount=1000,
-                                    params={'tgtCcy': 'quote_ccy'})
-            trd = Trade.create_from_response(r)
-            self.cache.append(trd)
-            self.positions['long'].add(pair)
-            log.info(f'Long signal for {pair} - opening (amnt$: 1000)')
+            self.new_long(pair)
             return
-
         # Amend
         elif action == 0 and pair in self.positions['short']:
-            # Impossible case for now
+            self.increase_short(pair)  # Impossible case for now
             return
         elif action == 0 and pair in self.positions['long']:
-            trades = self.get_from_cache(pair)
-            self.batch_close(trades)
-            for trade in trades:
-                log.info(f'Short signal for {pair} - closing reversed (amnt$: {trade.close_amount_quote})')
+            self.reverse_long(pair)
             return
-
         elif action == 2 and pair in self.positions['short']:
-            # Impossible case for now
+            self.reverse_short(pair)  # Impossible case for now
             return
-
         elif action == 2 and pair in self.positions['long']:
-            balances = self.exchange.fetch_balance_usd()
-            amount = balances[pair.split("-")[0]]
-            if amount >= self.max_load:
-                log.info(f'Short signal for {pair} - skipping (max amount exceeded)')
-                return
-            else:
-                # check cooldown
-                trades = self.get_from_cache(pair)
-                for trade in trades:
-                    if trade.open_ts + self.cooldown_period > to_unix(datetime.datetime.now()):
-                        log.info(f'Long signal for {pair} - skipping (cooldown period)')
-                        return
-
-                # Increase position
-                diff = self.max_load - amount
-                assert diff > 0
-                r = self.exchange.create_order(symbol=pair,
-                                        type='market',
-                                        side='buy',
-                                        amount=diff,
-                                        params={'tgtCcy': 'quote_ccy'})
-                trd = Trade.create_from_response(r)
-                self.cache.append(trd)
-                self.positions['long'].add(pair)
-                log.info(f'Long signal for {pair} - opening (amnt$: {diff})')
-                return
+            self.increase_long(pair)
+            return
 
     def create_reverse_order(self, T: Trade) -> Trade:
         sd = "buy" if T.side == 'sell' else "sell"
         r = self.exchange.create_order(symbol=T.instId,
                                        type='market',
                                        side=sd,
-                                       amount=T.open_amount_base,
+                                       amount=T.open_amount_base * (1 - 0.12e-2),  # Commission is paid in base, so it is not feasible to close full open amount
                                        params={"tgtCcy": "base_ccy"})
-        trd = T.modify_on_close(r)
-        return trd.close()
+
+        return T.modify_on_close(r).close()
 
     def process_cache(self):
         to_delete = []
@@ -171,5 +132,61 @@ class Monitor:
                 
             except Exception as e:
                 log.exception(e)
+
+    ##############################################################################################################
+
+    def new_short(self, pair):
+        log.info(f'Short signal for {pair} - skipping (no short)')
+
+    def new_long(self, pair):
+        r = self.exchange.create_order(symbol=pair,
+                                       type='market',
+                                       side='buy',
+                                       amount=1000,
+                                       params={'tgtCcy': 'quote_ccy'})
+        trd = Trade.create_from_response(r)
+        self.cache.append(trd)
+        self.positions['long'].add(pair)
+        log.info(f'Long signal for {pair} - opening (amnt$: 1000)')
+
+    def increase_short(self, pair):
+        pass
+
+    def increase_long(self, pair):
+        balances = self.exchange.fetch_balance_usd()
+        amount = balances[pair.split("-")[0]]
+        if amount >= self.max_load:
+            log.info(f'Long signal for {pair} - skipping (max amount exceeded)')
+            return
+        else:
+            # check cooldown time
+            trades = self.get_from_cache(pair)
+            for trade in trades:
+                if trade.open_ts + self.cooldown_period > to_unix(datetime.datetime.now()):
+                    log.info(f'Long signal for {pair} - skipping (cooldown period)')
+                    return
+
+            # Increase position
+            diff = self.max_load - amount
+            assert diff > 0
+            r = self.exchange.create_order(symbol=pair,
+                                           type='market',
+                                           side='buy',
+                                           amount=diff,
+                                           params={'tgtCcy': 'quote_ccy'})
+            trd = Trade.create_from_response(r)
+            self.cache.append(trd)
+            self.positions['long'].add(pair)
+            log.info(f'Long signal for {pair} - opening (amnt$: {diff})')
+            return
+
+    def reverse_long(self, pair):
+        trades = self.get_from_cache(pair)
+        self.batch_close(trades)
+        for trade in trades:
+            log.info(f'Short signal for {pair} - closing reversed (amnt$: {trade.close_amount_quote})')
+
+    def reverse_short(self, pair):
+        pass
 
 
