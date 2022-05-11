@@ -78,7 +78,7 @@ class Monitor:
             log.info(f'Short signal for {pair} - skipping (no short)')
             return
 
-        elif action == 2 and (pair not in self.positions['long'] and pair not in self.postions['short']):
+        elif action == 2 and (pair not in self.positions['long'] and pair not in self.positions['short']):
             r = self.m.create_order(symbol=pair,
                                     type='market',
                                     side='buy',
