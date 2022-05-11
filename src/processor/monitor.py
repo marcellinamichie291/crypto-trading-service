@@ -56,7 +56,7 @@ class Monitor:
         to_delete = []
         for trade in trades:
             t = self.create_reverse_order(T=trade)
-            self.mongo.post_one(t.dict())
+            self.mongo.post_one(t)
             to_delete.append(trade)
         for t in to_delete:
             self.cache.remove(t)
