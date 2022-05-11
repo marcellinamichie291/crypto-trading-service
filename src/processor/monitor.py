@@ -147,12 +147,12 @@ class Monitor:
         if len(self.cache) == 0:
             return
         for trade in self.cache:
-            if trade.open_ts + self.max_hold_period > to_unix(datetime.datetime.now()):
+            if trade.open_ts + self.max_hold_period < to_unix(datetime.datetime.now()):
                 to_delete.append(trade)
         self.batch_close(to_delete)
         for t in to_delete:
             side = "Long" if t.side == "buy" else "Short"
-            log.info(f'{side} trade for {t.instId} was closed. Max holding period excceded.')
+            log.info(f'{side} trade for {t.instId} was closed. Max holding period exceeded.')
 
     def run(self):
 
