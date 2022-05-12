@@ -10,7 +10,7 @@ services:
       - SUBSCRIPTION_PARAMS=${SUBSCRIPTION_PARAMS}
       - DB_NAME=${DB_NAME}
       - OHLC_COLLECTION_NAME=${OHLC_COLLECTION_NAME}
-      - VERBOSE_MSG=False
+      - WS_LOGGER_PATH=${WS_LOGGER_PATH}
     volumes:
       - ./internals:/internals
     restart: unless-stopped
@@ -78,7 +78,7 @@ services:
       interval: 10s
       timeout: 5s
       retries: 0
-      start_period: 10s
+      start_period: 12s
     networks:
       net_internal:
         ipv4_address: ${DB_URI_WO_PORT}
