@@ -83,4 +83,5 @@ class Trade:
         self.close_amount_base = r['amount']
         self.close_price_base = r['average']
         self.close_id = r['id']
+        self.fees_in_base.append(r['fee']['cost'])
         return self
