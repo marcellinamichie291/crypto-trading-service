@@ -60,6 +60,11 @@ class Monitor:
             to_delete.append(trade)
         for t in to_delete:
             self.cache.remove(t)
+            if t.instId in self.positions['short']:
+                self.positions['short'].remove(t.instId)
+
+            if t.instId in self.positions['long']:
+                self.positions['long'].remove(t.instId)
 
     def check_data_sufficiency(self, pairs):
         """On init checks if data is sufficient to start predicting"""
