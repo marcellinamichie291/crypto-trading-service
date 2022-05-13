@@ -26,6 +26,8 @@ class Market:
             r = self.m.create_order(symbol=symbol, type=type, side=side, amount=amount, params=params)
         except ExchangeNotAvailable as e:
             raise ExchangeUnavailable(e)
+        except BadSymbol as e:
+            raise MarketBadSymbol(e)
 
         time.sleep(0.5)
         info = self.get_trade_info(symbol=symbol, id=r['id'])

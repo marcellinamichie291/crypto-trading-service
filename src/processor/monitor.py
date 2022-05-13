@@ -99,6 +99,9 @@ class Monitor:
                 return
         except ExchangeUnavailable:
             log.error(f"Can\'t resolve action for {pair} with {action} signal. Exchange Unavailiable")
+        except MarketBadSymbol:
+            log.error(f"Can\'t resolve action for {pair} with {action} signal. Exchange Unavailiable. Bad symbol error.")
+
 
     def create_reverse_order(self, T: Trade) -> Trade:
         sd = "buy" if T.side == 'sell' else "sell"
@@ -124,6 +127,8 @@ class Monitor:
                 log.info(f'{side} trade for {t.instId} was closed. Max holding period exceeded.')
         except ExchangeUnavailable:
             log.error(f"Can\'t process cache. Exchange Unavailiable")
+        except MarketBadSymbol:
+            log.error(f"Can\'t resolve action for {pair} with {action} signal. Exchange Unavailiable. Bad symbol error.")
 
     def run(self):
 

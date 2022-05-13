@@ -18,3 +18,10 @@ class ExchangeUnavailable(Exception):
     OKX not responding
     """
     pass
+
+
+class MarketBadSymbol(Exception):
+    """
+    Error in symbol
+    """
+    pass
