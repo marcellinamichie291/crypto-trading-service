@@ -98,17 +98,16 @@ class Monitor:
                 self.increase_long(pair)
                 return
         except ExchangeUnavailable:
-            log.error(f"Can\'t resolve action for {pair} with {action} signal. Exchange Unavailiable")
+            log.error(f"Can\'t resolve action for {pair} with {action} signal. Exchange Unavailable")
         except MarketBadSymbol:
-            log.error(f"Can\'t resolve action for {pair} with {action} signal. Exchange Unavailiable. Bad symbol error.")
-
+            log.error(f"Can\'t resolve action for {pair} with {action} signal. Bad symbol error.")
 
     def create_reverse_order(self, T: Trade) -> Trade:
         sd = "buy" if T.side == 'sell' else "sell"
         r = self.exchange.create_order(symbol=T.instId,
                                        type='market',
                                        side=sd,
-                                       amount=T.open_amount_base,  # Commission is paid in base, so it is not feasible to close full open amount
+                                       amount=T.open_amount_base-T.fees_in_base[0],
                                        params={"tgtCcy": "base_ccy"})
 
         return T.modify_on_close(r).close()
@@ -128,7 +127,7 @@ class Monitor:
         except ExchangeUnavailable:
             log.error(f"Can\'t process cache. Exchange Unavailiable")
         except MarketBadSymbol:
-            log.error(f"Can\'t resolve action for {pair} with {action} signal. Exchange Unavailiable. Bad symbol error.")
+            log.error(f"Can\'t process cache. Bad symbol error.")
 
     def run(self):
 
@@ -148,20 +147,33 @@ class Monitor:
                 log.exception(e)
 
     ##############################################################################################################
+    def _new_trade(self, pair, side):
+        if side == 'long':
+            sd = 'buy'
+            pos = 'long'
+            lg = 'Long'
+        else:
+            sd = 'sell'
+            pos = 'short'
+            lg = 'Short'
 
-    def new_short(self, pair):
-        log.info(f'Short signal for {pair} - skipping (no short)')
-
-    def new_long(self, pair):
         r = self.exchange.create_order(symbol=pair,
                                        type='market',
-                                       side='buy',
+                                       side=sd,
                                        amount=1000,
                                        params={'tgtCcy': 'quote_ccy'})
         trd = Trade.create_from_response(r)
         self.cache.append(trd)
-        self.positions['long'].add(pair)
-        log.info(f'Long signal for {pair} - opening (amnt$: 1000)')
+        self.positions[pos].add(pair)
+        log.info(f'{lg} signal for {pair} - opening (amnt$: 1000)')
+
+    def new_short(self, pair):
+        log.info(f'Short signal for {pair} - skipping (no shorts)')
+        # self._new_trade(pair, 'short')
+        pass
+
+    def new_long(self, pair):
+        self._new_trade(pair, 'long')
 
     def increase_short(self, pair):
         pass

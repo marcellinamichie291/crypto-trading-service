@@ -49,8 +49,15 @@ class Market:
             d[elem['ccy']] = float(elem['eqUsd'])
         return d
 
+    def fetch_balance_base(self):
+        try:
+            raw_b = self.m.fetch_balance()
+        except ExchangeNotAvailable as e:
+            raise ExchangeUnavailable(e)
+        return raw_b['total']
+
     def reset_balance(self):
-        valid_pairs = ['ADA', 'AVAX', 'DOGE', 'DOT', 'ETH', 'LUNA', 'SOL', 'USDT', 'XRP']
+        valid_pairs = ['ADA', 'DOGE', 'DOT', 'ETH', 'SOL', 'USDT', 'XRP']
         active_balances = self.m.fetch_balance()
         for position in active_balances['info']['data'][0]['details']:
             if position['ccy'] not in valid_pairs:
