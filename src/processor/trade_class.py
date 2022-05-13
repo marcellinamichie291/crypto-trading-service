@@ -9,14 +9,14 @@ class Trade:
     side: str
 
     open_ts:int
-    open_amount_quote: float
-    open_amount_base: float
+    open_amount_quote: float  # gross of fees
+    open_amount_base: float  # gross of fees
     open_price_base: float
     open_id: str
 
     close_ts: int = None
-    close_amount_quote: float = None
-    close_amount_base: float = None
+    close_amount_quote: float = None  # net of first fee / gross of second fee
+    close_amount_base: float = None  # net of first fee / gross of second fee
     close_price_base: float = None
     close_id: str = None
 
@@ -28,36 +28,36 @@ class Trade:
     rel_ret_quote: float = None
     abs_ret_base: float = None
     abs_ret_quote: float = None
+    net_price_ret_base: float = None
+    net_price_ret_quote: float = None
 
     fees_in_base: list = field(default_factory=list)
     fees_in_quote: list = field(default_factory=list)
 
-    def _absolute_return(self) -> None:
-      if self.close_price_base is not None:
-        self.abs_ret_base = ((self.close_amount_base
-                                 - sum(self.fees_in_base))
-                                 / self.open_amount_base)-1
+    def _calculate_returns(self) -> None:
+        if self.close_price_base is not None:
+            close_base_amnt_net = self.close_amount_base - self.fees_in_base[1]
+            open_base_amnt_net = self.open_amount_base - self.fees_in_base[0]
 
-        self.abs_ret_quote = ((self.close_amount_quote
-                                 - sum(self.fees_in_quote))
-                                 / self.open_amount_quote)-1
+            close_quote_amnt_net = self.close_amount_quote - self.fees_in_quote[1]
+            open_quote_amnt_net = self.open_amount_quote - self.fees_in_quote[0]
 
-    def _relative_return(self) -> None:
-      if self.close_price_base is not None:
-        coef = 1 if self.side == 'buy' else -1
-        self.rel_ret_base = (((self.close_amount_base
-                               - sum(self.fees_in_base))
-                               / self.open_amount_base)-1) * coef
+            self.net_price_ret_base = (close_base_amnt_net/open_base_amnt_net)-1
+            self.net_price_ret_quote = (close_quote_amnt_net/open_quote_amnt_net)-1
 
-        self.rel_ret_quote = (((self.close_amount_quote
-                                - sum(self.fees_in_quote))
-                                / self.open_amount_quote)-1) * coef
+            self.abs_ret_base = (close_base_amnt_net / (open_base_amnt_net+sum(self.fees_in_base))) - 1
+            self.abs_ret_quote = (close_quote_amnt_net / (open_quote_amnt_net+sum(self.fees_in_quote))) - 1
 
-        self.is_positive = True if self.rel_ret_quote > 0 else False
+            coef = 1 if self.side == 'buy' else -1
+
+            self.rel_ret_base = self.abs_ret_base * coef
+            self.rel_ret_quote = self.abs_ret_quote * coef
+
+            self.is_positive = True if self.rel_ret_quote > 0 else False
 
     def _time_alive(self) -> None:
-      if self.close_ts is not None:
-        self.time_alive = self.close_ts - self.open_ts
+        if self.close_ts is not None:
+            self.time_alive = self.close_ts - self.open_ts
 
     @staticmethod
     def _calculate_fees(r):
@@ -80,8 +80,7 @@ class Trade:
         if close_price is not None:
             self.close_price_base = close_price
 
-        self._absolute_return()
-        self._relative_return()
+        self._calculate_returns()
         self._time_alive()
 
         self.is_open = False
