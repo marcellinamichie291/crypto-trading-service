@@ -5,7 +5,8 @@ import requests
 import datetime
 import ccxt
 from utils import dts
-from ccxt.base.errors import BadSymbol
+from exceptions import *
+from ccxt.base.errors import BadSymbol, ExchangeNotAvailable
 
 
 class Market:
@@ -21,16 +22,26 @@ class Market:
             self.m.set_sandbox_mode(enable=True)
 
     def create_order(self, symbol, type, side, amount, params={}):
-        r = self.m.create_order(symbol=symbol, type=type, side=side, amount=amount, params=params)
+        try:
+            r = self.m.create_order(symbol=symbol, type=type, side=side, amount=amount, params=params)
+        except ExchangeNotAvailable as e:
+            raise ExchangeUnavailable(e)
+
         time.sleep(0.5)
         info = self.get_trade_info(symbol=symbol, id=r['id'])
         return info
 
     def get_trade_info(self, symbol, id):
-        return self.m.fetch_order(id=id, symbol=symbol)
+        try:
+            return self.m.fetch_order(id=id, symbol=symbol)
+        except ExchangeNotAvailable as e:
+            raise ExchangeUnavailable(e)
 
     def fetch_balance_usd(self):
-        raw_b = self.m.fetch_balance()
+        try:
+            raw_b = self.m.fetch_balance()
+        except ExchangeNotAvailable as e:
+            raise ExchangeUnavailable(e)
         d = {}
         for elem in raw_b['info']['data'][0]['details']:
             d[elem['ccy']] = float(elem['eqUsd'])

@@ -10,7 +10,6 @@ from utils.dts import *
 from processor.ti_producer import TiGenerator
 
 
-
 class Monitor:
 
     def __init__(self, api_key: str,
@@ -75,29 +74,31 @@ class Monitor:
 
     def action_resolution(self, action: int, pair: str):
         """Function resolves trades in context of actions predicted by the model"""
-
-        if action == 1:
-            return
-        # New
-        if action == 0 and (pair not in self.positions['short'] and pair not in self.positions['long']):
-            self.new_short(pair)
-            return
-        elif action == 2 and (pair not in self.positions['long'] and pair not in self.positions['short']):
-            self.new_long(pair)
-            return
-        # Amend
-        elif action == 0 and pair in self.positions['short']:
-            self.increase_short(pair)  # Impossible case for now
-            return
-        elif action == 0 and pair in self.positions['long']:
-            self.reverse_long(pair)
-            return
-        elif action == 2 and pair in self.positions['short']:
-            self.reverse_short(pair)  # Impossible case for now
-            return
-        elif action == 2 and pair in self.positions['long']:
-            self.increase_long(pair)
-            return
+        try:
+            if action == 1:
+                return
+            # New
+            if action == 0 and (pair not in self.positions['short'] and pair not in self.positions['long']):
+                self.new_short(pair)
+                return
+            elif action == 2 and (pair not in self.positions['long'] and pair not in self.positions['short']):
+                self.new_long(pair)
+                return
+            # Amend
+            elif action == 0 and pair in self.positions['short']:
+                self.increase_short(pair)  # Impossible case for now
+                return
+            elif action == 0 and pair in self.positions['long']:
+                self.reverse_long(pair)
+                return
+            elif action == 2 and pair in self.positions['short']:
+                self.reverse_short(pair)  # Impossible case for now
+                return
+            elif action == 2 and pair in self.positions['long']:
+                self.increase_long(pair)
+                return
+        except ExchangeUnavailable:
+            log.error(f"Can\'t resolve action for {pair} with {action} signal. Exchange Unavailiable")
 
     def create_reverse_order(self, T: Trade) -> Trade:
         sd = "buy" if T.side == 'sell' else "sell"
@@ -110,16 +111,19 @@ class Monitor:
         return T.modify_on_close(r).close()
 
     def process_cache(self):
-        to_delete = []
-        if len(self.cache) == 0:
-            return
-        for trade in self.cache:
-            if trade.open_ts + self.max_hold_period < to_unix(datetime.datetime.now()):
-                to_delete.append(trade)
-        self.batch_close(to_delete)
-        for t in to_delete:
-            side = "Long" if t.side == "buy" else "Short"
-            log.info(f'{side} trade for {t.instId} was closed. Max holding period exceeded.')
+        try:
+            to_delete = []
+            if len(self.cache) == 0:
+                return
+            for trade in self.cache:
+                if trade.open_ts + self.max_hold_period < to_unix(datetime.datetime.now()):
+                    to_delete.append(trade)
+            self.batch_close(to_delete)
+            for t in to_delete:
+                side = "Long" if t.side == "buy" else "Short"
+                log.info(f'{side} trade for {t.instId} was closed. Max holding period exceeded.')
+        except ExchangeUnavailable:
+            log.error(f"Can\'t process cache. Exchange Unavailiable")
 
     def run(self):
 

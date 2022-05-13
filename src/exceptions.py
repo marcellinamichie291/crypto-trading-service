@@ -5,8 +5,16 @@ class ZeroObsException(Exception):
     """
     pass
 
+
 class NotEnoughData(Exception):
     """
     Raised when generator can't construct single full observation
+    """
+    pass
+
+
+class ExchangeUnavailable(Exception):
+    """
+    OKX not responding
     """
     pass
