@@ -1,5 +1,6 @@
 import pandas as pd
 import numpy as np
+import datetime
 import ta
 import polars as pl
 
@@ -184,7 +185,8 @@ class TiGenerator:
         b = self.get_normalized_series(q=q, tensor_length=tensor_length)
         return pl.concat([a, b], how='horizontal')
 
-    def goto_db(self, inst_id: str, later_time: int, mongo_int: M.MongoInterface):
+    @staticmethod
+    def goto_db(inst_id: str, later_time: int, mongo_int: M.MongoInterface):
         raw = pl.DataFrame(mongo_int.get_latest_batch(inst_id, later_time))
 
         if len(raw) == 0:
@@ -197,6 +199,11 @@ class TiGenerator:
 
         if len(raw) < 300:
             raise NotEnoughData(f"Expected 300 obs, got {len(raw)}")
+
+        delta = datetime.datetime.now() - datetime.datetime.fromtimestamp(raw['dt'][-1]/1000)
+        if delta.seconds > 90:
+            raise StaleDataException(f"Could not fetch relevant data from db. Latest is {delta.seconds} seconds old.")
+
         return raw
 
     def goto_db_and_make_obs(self, inst_id: str, later_time: int, mongo_int: M.MongoInterface):

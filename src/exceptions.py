@@ -25,3 +25,10 @@ class MarketBadSymbol(Exception):
     Error in symbol
     """
     pass
+
+
+class StaleDataException(Exception):
+    """
+    Couldn't fetch fresh data from db
+    """
+    pass
