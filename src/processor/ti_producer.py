@@ -201,7 +201,7 @@ class TiGenerator:
             raise NotEnoughData(f"Expected 300 obs, got {len(raw)}")
 
         delta = datetime.datetime.now() - datetime.datetime.fromtimestamp(raw['dt'][-1]/1000)
-        if delta.seconds > 90:
+        if delta.seconds > 120:
             raise StaleDataException(f"Could not fetch relevant data from db. Latest is {delta.seconds} seconds old.")
 
         return raw

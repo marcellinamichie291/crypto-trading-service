@@ -153,7 +153,7 @@ class Monitor:
             except StaleDataException:
                 log.error("Could not fetch relevant data from db. Terminating.")
                 self.terminate()
-                break
+                raise
                 
             except Exception as e:
                 log.exception(e)
