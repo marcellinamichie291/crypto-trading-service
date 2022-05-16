@@ -53,7 +53,6 @@ services:
       - ./internals:/internals
     ports:
       - "1001:1001"
-    restart: unless-stopped
     networks:
       - net_internal
     depends_on:
