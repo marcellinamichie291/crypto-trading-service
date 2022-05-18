@@ -32,7 +32,7 @@ class Monitor:
         self.cache = []
 
         self.cooldown_period = 180000  # msec
-        self.max_hold_period = 270000  # msec
+        self.max_hold_period = 270000000000  # msec
         self.max_load = 1500
         self.basic_bid = 1000
 
